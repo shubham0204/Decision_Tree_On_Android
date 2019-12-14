@@ -4,7 +4,7 @@ import kotlin.collections.HashMap
 
 // DecisionTree class which defines the whole tree. The tree is created by recursively calling a method.
 // Hence, we use HashMap<String,Any> as the datatype of our tree.
-class DecisionTree  {
+class DecisionTree {
 
     // The name of column which contains the independent variable ( which needs to be predicted ).
     private val LABEL_COLUMN_NAME ="Label"
@@ -30,7 +30,7 @@ class DecisionTree  {
 
     // ------------- Internal Methods -------------
 
-
+    // Generate a prediction for the given sample.
     private fun predictWithTree ( x : HashMap<String,String> , tree : HashMap<String,Any> ) : String {
         var prediction = ""
         var tree = tree
@@ -50,6 +50,7 @@ class DecisionTree  {
         return prediction
     }
 
+    // Create a tree by recursively calling this method.
     private fun createTree( data : DataFrame , inputTree : HashMap<String,Any>? ) : HashMap<String,Any> {
         val highestIGFeatureName = findHighestIG( data )
         val attributes = data.getData()[ highestIGFeatureName ]!!.distinct()
@@ -76,6 +77,7 @@ class DecisionTree  {
         return tree
     }
 
+    // Returns a subset of the dataframe sorted by `featureName` and `featureValue`.
     private fun getSubTable( data: DataFrame , featureName : String , featureValue : String ) : HashMap< String , ArrayList<String> > {
         val features = data.getData()[ featureName ]!!
         val outputHashmap = HashMap< String , ArrayList<String> >()
@@ -98,6 +100,7 @@ class DecisionTree  {
         return outputHashmap
     }
 
+    // Find the feature which gives us the maximum information gain score ( IG ).
     private fun findHighestIG( data : DataFrame ) : String {
         val featureNames = data.getFeatureColumnNames()
         val informationGain = ArrayList<Double>()
@@ -109,6 +112,7 @@ class DecisionTree  {
         return featureNames[ argMax( informationGain ) ]
     }
 
+    // Get the entropy for all labels.
     private fun findEntropyForLabels( data : DataFrame ) : Double {
         val labels = data.getData()[ LABEL_COLUMN_NAME ]?.toTypedArray()
         val totalLabelsCount = labels?.count()!!.toFloat()
@@ -116,12 +120,12 @@ class DecisionTree  {
         for ( label in labels.distinct() ){
             val labelCounts = labels.count { it == label }.toFloat()
             val p = ( labelCounts / totalLabelsCount ).toDouble()
-            entropy += -p * logbase2( p + 1e-19 )
+            entropy += -p * logbase2( p + 1e-19 )// To avoid division by zero.
         }
         return entropy
     }
 
-    //
+    // Get the entropy for a specific feature in the dataset.
     private fun findEntropyForFeature( data : DataFrame, featureColumnName : String ) : Double {
         val labels = data.getData()[ LABEL_COLUMN_NAME ]!!.toTypedArray()
         val featureValues = data.getData()[ featureColumnName ]!!.toTypedArray()
@@ -139,8 +143,8 @@ class DecisionTree  {
                     }
                 }
                 denCount = featureValues.count { it == featureValue }.toDouble()
-                val p = numCount / (denCount + 1e-19)
-                entropy += p * logbase2(p + 1e-19)
+                val p = numCount / (denCount + 1e-19) // To avoid division by zero.
+                entropy += p * logbase2(p + 1e-19)// To avoid division by zero.
             }
             featureEntropy += -(denCount / labels.count()) * entropy
         }

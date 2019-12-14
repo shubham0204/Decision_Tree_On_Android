@@ -7,6 +7,8 @@ import kotlin.collections.ArrayList
 fun main( ) {
 
     val decisionTree = DecisionTree()
+
+    // Get some sample data
     val dataFrame = DataFrame()
     dataFrame.addColumn(
         arrayOf(
@@ -47,12 +49,15 @@ fun main( ) {
         "Label"
     )
 
+    // Set the data in the tree. Soon, the tree is created.
     decisionTree.setData( dataFrame )
     val sample = HashMap<String,String>().apply {
         put( "Taste" , "Salty" )
         put( "Temperature" , "Cold" )
         put( "Texture" , "Hard" )
     }
+
+    // Print the tree as a `HashMap`.
     println( decisionTree.predict( sample ) )
 
 }
