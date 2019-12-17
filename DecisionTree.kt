@@ -21,6 +21,7 @@ class DecisionTree {
         // We create the tree as soon as the data is feeded. The tree is created and stored as `finalisedTree`.
         val tree = createTree( data , null )
         finalisedTree = tree
+        println( finalisedTree )
     }
 
     // Predict the label for the given sample
@@ -43,7 +44,13 @@ class DecisionTree {
                 prediction = predictWithTree( x , tree )
             }
             else {
-                prediction = p[ value ] as String
+                if ( p[ value ] == null ) {
+                    val k = p.keys.toList()[0]
+                    prediction = p[ k ] as String
+                }
+                else {
+                    prediction = p[value] as String
+                }
                 break
             }
         }
