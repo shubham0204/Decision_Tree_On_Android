@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="taste_feature">
+        <item>Salty</item>
+        <item>Spicy</item>
+        <item>Sweet</item>
+    </string-array>
+
+    <string-array name="texture_feature">
+        <item>Hard</item>
+        <item>Soft</item>
+    </string-array>
+
+    <string-array name="temperature_feature">
+        <item>Cold</item>
+        <item>Hot</item>
+    </string-array>
+
+</resources>
