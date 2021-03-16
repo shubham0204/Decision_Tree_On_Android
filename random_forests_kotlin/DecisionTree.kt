@@ -8,7 +8,7 @@ import kotlin.collections.HashMap
 class DecisionTree( private var data : DataFrame ) {
 
     // The name of column which contains the independent variable ( which needs to be predicted ).
-    private val LABEL_COLUMN_NAME ="Label"
+    private val LABEL_COLUMN_NAME = "Label"
 
     // The tree which is used for inferencing.
     private var finalisedTree : HashMap<String,Any>? = null
@@ -64,11 +64,15 @@ class DecisionTree( private var data : DataFrame ) {
 
         for ( attribute in attributes ) {
             val subTable = getSubTable( data , highestIGFeatureName , attribute )
-            val clValue = subTable[ LABEL_COLUMN_NAME ]!!.distinct()
-            val counts = getFreq( subTable[ LABEL_COLUMN_NAME ] as ArrayList<String> )
+
+            val clValueCountHashmap = uniqueAndReturnCounts( subTable[ LABEL_COLUMN_NAME ] as ArrayList<String> )
+            val clValues = clValueCountHashmap.keys.toTypedArray()
+            val counts = clValueCountHashmap.values.toIntArray()
+            //println( Arrays.toString( subTable[ LABEL_COLUMN_NAME ]?.toTypedArray() ))
+            //print( counts )
             if ( counts.count() == 1 ){
                 val p = tree[ highestIGFeatureName ] as HashMap<String,Any>
-                p[ attribute ] = clValue[0]
+                p[ attribute ] = clValues[ 0 ]
                 break
             }
             else {
@@ -175,13 +179,17 @@ class DecisionTree( private var data : DataFrame ) {
         return index
     }
 
+    override fun toString(): String {
+        return finalisedTree.toString()
+    }
+
     // Gets the number of occurrences ( frequency ) of all the elements.
-    private fun getFreq( x : ArrayList<String> ) : ArrayList<Int> {
-        val counts = ArrayList<Int>()
-        for ( xi in x ){
-            counts.add( x.count { it == xi } )
+    private fun uniqueAndReturnCounts(x: ArrayList<String>) : HashMap<String,Int> {
+        val outputs = HashMap<String,Int>()
+        for ( xi in x.distinct() ){
+            outputs[ xi ] = x.count{ it == xi }
         }
-        return counts
+        return outputs
     }
 
     // Calculates the logarithm with base 2 for the given `x`.

@@ -7,6 +7,10 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -23,7 +27,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val decisionTree = loadData()
+        //val decisionTree = loadDecisionTree()
+        val randomForest = loadDecisionTree()
+        CoroutineScope( Dispatchers.Main ).launch{
+            loadRandomForest()
+        }
+
 
         ArrayAdapter.createFromResource(this,
             R.array.taste_feature ,
@@ -75,20 +84,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         predict.setOnClickListener {
-            Log.e( "TEST" , "$defaultTemperatureFeature , $defaultTextureFeature , $defaultTasteFeature")
             val sample = HashMap<String,String>().apply {
                 put( "Taste" , defaultTasteFeature )
                 put( "Temperature" , defaultTemperatureFeature )
                 put( "Texture" , defaultTextureFeature )
             }
-            val label = decisionTree.predict( sample )
+            val label = randomForest.predict( sample )
             predicted_label.text = "Prediction is $label"
         }
 
     }
 
-    private fun loadData() : DecisionTree {
-        val decisionTree = DecisionTree()
+    private fun loadDecisionTree() : DecisionTree {
         val dataFrame = DataFrame()
         dataFrame.addColumn(
             arrayOf(
@@ -128,8 +135,57 @@ class MainActivity : AppCompatActivity() {
             arrayOf("No", "No", "Yes", "No", "Yes", "Yes", "No", "Yes", "Yes", "Yes").toList() as ArrayList<String>,
             "Label"
         )
-        decisionTree.setData( dataFrame )
-        return decisionTree
+        return DecisionTree( dataFrame )
+    }
+
+
+
+    private suspend fun loadRandomForest()  {
+        with( Dispatchers.Main ){
+            val dataFrame = DataFrame()
+            dataFrame.addColumn(
+                arrayOf(
+                    "Salty",
+                    "Spicy",
+                    "Spicy",
+                    "Spicy",
+                    "Spicy",
+                    "Sweet",
+                    "Salty",
+                    "Sweet",
+                    "Spicy",
+                    "Salty"
+                ).toList() as ArrayList<String>,
+                "Taste"
+            )
+            dataFrame.addColumn(
+                arrayOf("Hot", "Hot", "Hot", "Cold", "Hot", "Cold", "Cold", "Hot", "Cold", "Hot").toList() as ArrayList<String>,
+                "Temperature"
+            )
+            dataFrame.addColumn(
+                arrayOf(
+                    "Soft",
+                    "Soft",
+                    "Hard",
+                    "Hard",
+                    "Hard",
+                    "Soft",
+                    "Soft",
+                    "Soft",
+                    "Soft",
+                    "Hard"
+                ).toList() as ArrayList<String>,
+                "Texture"
+            )
+            dataFrame.addColumn(
+                arrayOf("No", "No", "Yes", "No", "Yes", "Yes", "No", "Yes", "Yes", "Yes").toList() as ArrayList<String>,
+                "Label"
+            )
+            val rf = RandomForest( dataFrame )
+            with( Dispatchers.Default ){
+                Log.e( "App" , "Random forest created" )
+            }
+        }
     }
 
 }
